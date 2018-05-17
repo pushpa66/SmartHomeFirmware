@@ -21,14 +21,18 @@ Adafruit_MQTT_Client mqtt(&client, mqttServer, serverPort);
 Adafruit_MQTT_Publish STATE = Adafruit_MQTT_Publish(&mqtt, publishTopic);
 Adafruit_MQTT_Subscribe COMMAND = Adafruit_MQTT_Subscribe(&mqtt, subscribeTopic, MQTT_QOS_1);
 
-char * WIFI_SSID = "My_Dialog_4G";
-char * WIFI_PASSWORD = "1Kumara@";
+char * WIFI_SSID = "SLT-LTE-WiFi-BA24";
+char * WIFI_PASSWORD = "Zxcv1010#";
+
+const int gasThreshold = 100;
 
 bool availableWiFi = false;
 String data = "";
 
+const int A = A0;
 const int led1 = D2;
 const int led2 = D3;
+const int led3 = D1;
 const int fan = D8;
 const int gas = D5;
 const int motionPin = D6;
@@ -45,10 +49,13 @@ float h = 0;
 int t1 = 0;
 void setup() {
 
+  pinMode(A, INPUT);
   pinMode(led1, OUTPUT);
   pinMode(led2, OUTPUT);
+  pinMode(led3, OUTPUT);
   digitalWrite(led1, LOW);
   digitalWrite(led2, LOW);
+  digitalWrite(led3, LOW);
   pinMode(fan, OUTPUT);
   digitalWrite(fan, LOW);
   pinMode(gas, INPUT);
@@ -96,9 +103,12 @@ void setup() {
 
 void loop() {
 
-    checkSubscription();
-    readSensors();
-    readDHT();
+//  Serial.println(analogRead(A));
+//  Serial.println(digitalRead(gas));
+
+  checkSubscription();
+  readSensors();
+  readDHT();
   
    if(millis() - t1 > 0){
     if(millis() - t1 > 2000){
@@ -120,15 +130,17 @@ void setFan(bool state){
 }
 
 void readSensors(){
-  if(digitalRead(gas)){
+  if(analogRead(A) > gasThreshold){
     g = "YES";
   } else {
     g = "NO";
   }
   if(digitalRead(motionPin)){
     m = "YES";
+    digitalWrite(led3, HIGH);
   } else {
     m = "NO";
+    digitalWrite(led3, LOW);
   }
 }
 
